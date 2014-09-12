@@ -27,6 +27,8 @@ class PluginConfig(system: ActorSystem) {
   def journalTableName = config.getString("journalTableName")
   def snapshotSchemaName: String = config.getString("snapshotSchemaName").toOption.map(_ + ".").getOrElse("")
   def snapshotTableName = config.getString("snapshotTableName")
+
+  def datasourceJndi: Option[String] = config.getString("data-source-jndi").toOption
 }
 
 trait ActorConfig { this: Actor =>
