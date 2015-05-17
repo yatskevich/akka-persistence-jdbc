@@ -3,7 +3,7 @@ organization := "com.github.dnvriend"
 
 name := "akka-persistence-jdbc"
 
-version := "1.1.5"
+version := "1.2-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
@@ -11,8 +11,10 @@ crossScalaVersions := Seq("2.10.5", "2.11.6")
 
 resolvers += "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven"
 
+resolvers += "akka snapshots" at "http://repo.akka.io/snapshots/"
+
 libraryDependencies ++= {
-    val akkaVersion = "2.3.11"
+    val akkaVersion = "2.4-SNAPSHOT"
     Seq(
     "com.typesafe.akka"   %% "akka-actor"                    % akkaVersion,
     "com.typesafe.akka"   %% "akka-persistence-experimental" % akkaVersion,

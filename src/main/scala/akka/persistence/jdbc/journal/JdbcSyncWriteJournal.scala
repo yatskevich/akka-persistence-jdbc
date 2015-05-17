@@ -15,20 +15,6 @@ trait JdbcSyncWriteJournal extends SyncWriteJournal with ActorLogging with Actor
 
   override def writeMessages(messages: Seq[PersistentRepr]): Unit = insertMessages(messages)
 
-  override def writeConfirmations(confirmations: Seq[PersistentConfirmation]): Unit = {
-    log.debug(s"writeConfirmations for ${confirmations.size} messages")
-
-    confirmations.foreach { confirmation =>
-      import confirmation._
-      selectMessage(persistenceId, sequenceNr).toStream.foreach { msg =>
-        val confirmationIds = msg.confirms :+ confirmation.channelId
-        val marker = confirmedMarker(confirmationIds)
-        val updatedMessage = msg.update(confirms = confirmationIds)
-        updateMessage(persistenceId, sequenceNr, marker, updatedMessage)
-      }
-    }
-  }
-
   override def deleteMessagesTo(processorId: String, toSequenceNr: Long, permanent: Boolean): Unit = {
     log.debug(s"deleteMessagesTo for processorId: $processorId to sequenceNr: $toSequenceNr, permanent: $permanent")
 
@@ -40,20 +26,6 @@ trait JdbcSyncWriteJournal extends SyncWriteJournal with ActorLogging with Actor
          }
        }
      }
-  }
-
-  override def deleteMessages(messageIds: Seq[PersistentId], permanent: Boolean): Unit = {
-    log.debug(s"Async delete [${messageIds.size}] messages, permanent: $permanent")
-
-    messageIds.foreach { persistentId =>
-      import persistentId._
-      permanent match {
-        case true => deleteMessageSingle(processorId, sequenceNr)
-        case false => selectMessage(processorId, sequenceNr).foreach { msg =>
-          updateMessage(processorId, sequenceNr, DeletedMarker, msg.update(deleted = true))
-        }
-      }
-    }
   }
 
   override def asyncReadHighestSequenceNr(processorId: String, fromSequenceNr: Long): Future[Long] = {

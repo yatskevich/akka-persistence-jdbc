@@ -52,7 +52,7 @@ trait GenericStatements extends JdbcStatements with JournalSerializer {
   def insertMessage(message: PersistentRepr): Int = {
     import message._
     SQL(s"INSERT INTO $schema$table (persistence_id, sequence_number, marker, message, created) VALUES (?,?,?,?, current_timestamp)")
-      .bind(processorId, sequenceNr, AcceptedMarker, marshal(message)).update().apply
+      .bind(persistenceId, sequenceNr, AcceptedMarker, marshal(message)).update().apply
   }
 
   override def insertMessages(messages: Seq[PersistentRepr]): Int = {
@@ -61,7 +61,7 @@ trait GenericStatements extends JdbcStatements with JournalSerializer {
           "(?,?,?,?, current_timestamp)"
         }.mkString(",")
       val args = messages.flatMap { repr =>
-        List(repr.processorId, repr.sequenceNr, AcceptedMarker, marshal(repr))
+        List(repr.persistenceId, repr.sequenceNr, AcceptedMarker, marshal(repr))
       }
     SQL(sql).bind(args:_*).update().apply
   }
